@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Планировщик пруда: плёнка, объём, смета</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#eef2ea;--card:#fbfcf9;--ink:#1c2a26;--mute:#5d6e68;--line:#d5ddd3;--water:#bfe0e4;--water2:#7fb9c4;--earth:#d9cdb4;--film:#0f6f78;--acc:#0f6f78;--accink:#fff;--warn:#b4442b;--amber:#c8901a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181a;--card:#172224;--ink:#e6efec;--mute:#93a7a1;--line:#27383a;--water:#1d4a52;--water2:#2c7885;--earth:#3a3426;--film:#5fd0d8;--acc:#5fd0d8;--accink:#06292d;--warn:#ff8c6e;--amber:#e0a93a}}
+:root[data-theme="dark"]{--bg:#10181a;--card:#172224;--ink:#e6efec;--mute:#93a7a1;--line:#27383a;--water:#1d4a52;--water2:#2c7885;--earth:#3a3426;--film:#5fd0d8;--acc:#5fd0d8;--accink:#06292d;--warn:#ff8c6e;--amber:#e0a93a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Onest,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{font-size:clamp(24px,4.5vw,36px);line-height:1.1;margin:0 0 6px;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 14px;max-width:56ch;font-size:15px}
+.grid{display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 10px;overflow:hidden}
+.sec>summary{cursor:pointer;padding:13px 16px;font:700 15px Onest,sans-serif;list-style:none;display:flex;justify-content:space-between;align-items:center;user-select:none;-webkit-tap-highlight-color:transparent}
+.sec>summary::-webkit-details-marker{display:none}
+.sec>summary::after{content:'+';color:var(--mute);font-size:20px;font-weight:400;line-height:1}
+.sec[open]>summary::after{content:'−'}
+.sec>summary:hover{background:rgba(0,0,0,.025)}
+.sec-in{padding:0 16px 16px}
+.sec-in>.f:first-child{margin-top:4px}
+label{display:block;font-size:14px;color:var(--mute);margin:0 0 4px}
+.f{margin-bottom:12px}.f[hidden]{display:none}
+.in{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:0 12px}
+.in:focus-within{border-color:var(--acc);outline:2px solid var(--acc);outline-offset:1px}
+.in input{flex:1;width:0;min-width:0;border:0;background:transparent;color:var(--ink);font:500 17px Onest,sans-serif;padding:9px 0;outline:none}
+.in span{color:var(--mute);font-size:13px;white-space:nowrap}
+select{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:400 15px Onest,sans-serif;padding:10px}
+select:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.f,.m,.big,.sec{min-width:0}
+.cap{font-size:13px;font-weight:500;color:var(--mute);margin:14px 0 4px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--bg);color:var(--mute);font:500 13px Onest,sans-serif;padding:9px 4px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--acc);color:var(--accink)}
+.seg button:focus-visible,.chip:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;font:500 13px Onest,sans-serif;padding:7px 13px;cursor:pointer}
+.chip:hover{border-color:var(--acc)}
+.msg{color:var(--warn);font-weight:500;margin:0 0 12px}.msg:empty{display:none}
+.sticky-res{position:relative}
+@media(min-width:861px) and (min-height:780px){.sticky-res{position:sticky;top:0;background:var(--bg);z-index:5;padding:2px 0 8px;margin:-2px 0 0}}
+.res{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.big{grid-column:1/-1;background:var(--acc);color:var(--accink);border-radius:14px;padding:16px 18px}
+.big small{display:block;opacity:.85;font-size:13px}
+.big b{font-size:clamp(34px,7vw,54px);line-height:1.05;font-weight:700;letter-spacing:-.03em}
+.big b i{font-style:normal;font-size:.4em;font-weight:500;margin-left:5px}
+.m{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card)}
+.m small{display:block;color:var(--mute);font-size:12px;line-height:1.3}
+.m b{font-size:17px;font-weight:700;line-height:1.25}
+svg{width:100%;height:auto;display:block}
+.note{color:var(--mute);font-size:14px;margin:6px 0 0;padding-left:20px}
+.note li{margin-bottom:5px}.warn{color:var(--warn)}
+.t{fill:var(--ink);font:500 13px Onest,sans-serif}.t2{fill:var(--mute);font:400 12px Onest,sans-serif}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.line{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);align-items:baseline;font-size:14px}
+.line:last-child{border-bottom:0}
+.line>span:first-child{flex:1;min-width:0}
+.line .qty{color:var(--mute);font-size:13px;white-space:nowrap;text-align:right}
+.line .sum{font-weight:700;min-width:80px;text-align:right;white-space:nowrap}
+.line.total{font-weight:700;border-top:2px solid var(--line);border-bottom:0;padding-top:10px;margin-top:4px}
+.grp{font-size:13px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px}
+.grp:first-child{margin-top:0}
+.shop{list-style:none;padding:0;margin:0}
+.shop li{padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.shop li:last-child{border-bottom:0}
+.shop label{display:flex;gap:8px;align-items:flex-start;color:var(--ink);font-size:14px;cursor:pointer;margin:0}
+.shop input{margin:3px 0 0;flex:none}
+.plants{font-size:14px;margin:0}
+.plants dt{font-weight:700;margin-top:10px;color:var(--ink)}
+.plants dt:first-child{margin-top:0}
+.plants dd{margin:2px 0 0;color:var(--mute)}
+.wqgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+.wqcard{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:8px 10px}
+.wqcard.ok{border-left-color:var(--acc)}
+.wqcard.warn{border-left-color:var(--amber)}
+.wqcard.bad{border-left-color:var(--warn)}
+.wqcard small{display:block;color:var(--mute);font-size:12px;line-height:1.3}
+.wqcard b{display:block;font-size:17px;font-weight:700;line-height:1.25}
+.wqcard .st{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.wqcard.ok .st{color:var(--acc)}
+.wqcard.warn .st{color:var(--amber)}
+.wqcard.bad .st{color:var(--warn)}
+.normtable{width:100%;border-collapse:collapse;font-size:13px}
+.normtable th,.normtable td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.normtable th{color:var(--mute);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.normtable tr:last-child td{border-bottom:0}
+.symtable{width:100%;border-collapse:collapse;font-size:13px}
+.symtable td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.symtable tr:last-child td{border-bottom:0}
+.symtable td:first-child{font-weight:500}
+.symtable td:nth-child(2){color:var(--mute)}
+.cal{display:grid;gap:10px}
+.cal>div{border-left:3px solid var(--acc);padding:2px 0 2px 12px}
+.cal b{display:block;font-size:14px}
+.cal p{margin:2px 0 0;font-size:13px;color:var(--mute)}
+.chip[aria-pressed="true"]{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.cm-ok{color:var(--acc);font-weight:700}.cm-cond{color:var(--amber);font-weight:700}.cm-no{color:var(--warn);font-weight:700}.cm th,.cm td{text-align:center;padding:5px 4px}
+@media print{.noprint,.chip{display:none!important}body{background:#fff;color:#000}.grid{display:block}.sec{border:1px solid #ccc;background:#fff}.sec>summary{background:#f5f5f5}.big{background:#eee!important;color:#000!important}.sticky-res{position:static!important}.m{background:#fff}.line{border-color:#ccc}.wqcard{border-color:#ccc}svg{max-width:100%}}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><div><h1>Планировщик пруда</h1>
+<p class="sub">Введите размеры — расчёт, смета и чертежи обновляются сразу. Ненужные секции сворачиваются.</p></div>
+<div class="tools noprint" style="margin:0"><button class="chip" id="resetall" type="button">Сбросить всё</button><button class="chip" id="theme" type="button">Тема</button></div></div>
+
+<div class="chips noprint" id="presets">
+<button class="chip" type="button" data-p="small">Малый садовый</button>
+<button class="chip" type="button" data-p="fish">Рыбный</button>
+<button class="chip" type="button" data-p="koi">Для кои</button>
+<button class="chip" type="button" data-p="swim">Купальный</button>
+<button class="chip" type="button" data-p="st">Осётр и форель</button>
+</div>
+
+<div class="grid">
+<section class="noprint" aria-label="Параметры">
+
+<details class="sec" id="sec-main" open>
+<summary>Размеры пруда</summary>
+<div class="sec-in">
+<div class="f"><label>Форма</label><div class="seg"><button type="button" data-k="shape" data-v="rect">Прямоугольный</button><button type="button" data-k="shape" data-v="oval">Овал / круг</button></div></div>
+<div class="row">
+<div class="f"><label for="L">Длина</label><div class="in"><input id="L" inputmode="decimal" placeholder="напр. 13"><span>м</span></div></div>
+<div class="f"><label for="W">Ширина</label><div class="in"><input id="W" inputmode="decimal" placeholder="напр. 4"><span>м</span></div></div>
+</div>
+<div class="f"><label>Глубина</label><div class="seg"><button type="button" data-k="dm" data-v="same">Ровное дно</button><button type="button" data-k="dm" data-v="diff">Дно с уклоном</button></div></div>
+<div class="row">
+<div class="f"><label for="D" id="lD">Глубина</label><div class="in"><input id="D" inputmode="decimal" placeholder="напр. 1,5"><span>м</span></div></div>
+<div class="f" id="d2w" hidden><label for="D2">Глубина другого края</label><div class="in"><input id="D2" inputmode="decimal" placeholder="напр. 2"><span>м</span></div></div>
+</div>
+<div class="f"><label for="S">Стенки</label>
+<select id="S"><option value="0">Вертикальные</option><option value="0.5">Крутые, откос 1:0,5</option><option value="1">Откос 1:1 (45°)</option><option value="1.5">Пологие, откос 1:1,5</option><option value="2">Очень пологие, откос 1:2</option></select></div>
+<div class="f"><label>Полка для растений по периметру</label><div class="seg"><button type="button" data-k="sf" data-v="0">Нет</button><button type="button" data-k="sf" data-v="1">Есть</button></div></div>
+<div class="row" id="shw" hidden>
+<div class="f"><label for="SW">Ширина полки</label><div class="in"><input id="SW" inputmode="decimal" placeholder="0,4"><span>м</span></div></div>
+<div class="f"><label for="SD">Глубина полки</label><div class="in"><input id="SD" inputmode="decimal" placeholder="0,4"><span>м</span></div></div>
+</div>
+<div class="f" id="refw" hidden><label>Указанные длина и ширина — это размер</label>
+<div class="seg"><button type="button" data-k="ref" data-v="top">по верху</button><button type="button" data-k="ref" data-v="bot">по дну</button></div></div>
+<div class="row">
+<div class="f"><label for="O">Нахлёст на берег</label><div class="in"><input id="O" inputmode="decimal" placeholder="0,5"><span>м</span></div></div>
+<div class="f"><label for="R">Запас на складки</label><div class="in"><input id="R" inputmode="decimal" placeholder="7"><span>%</span></div></div>
+</div>
+</div>
+</details>
+
+<details class="sec" id="sec-bp">
+<summary>Биоплато</summary>
+<div class="sec-in">
+<div class="f"><label>Растительный фильтр, выкопанный перед прудом</label><div class="seg"><button type="button" data-k="bp" data-v="0">Нет</button><button type="button" data-k="bp" data-v="1">Есть</button></div></div>
+<div class="row" id="bpw" hidden>
+<div class="f"><label for="BL">Длина по верху</label><div class="in"><input id="BL" inputmode="decimal" placeholder="напр. 5"><span>м</span></div></div>
+<div class="f"><label for="BW">Ширина по верху</label><div class="in"><input id="BW" inputmode="decimal" placeholder="напр. 3"><span>м</span></div></div>
+<div class="f"><label for="BD">Глубина</label><div class="in"><input id="BD" inputmode="decimal" placeholder="0,4"><span>м</span></div></div>
+</div>
+</div>
+</details>
+
+<details class="sec" id="sec-str">
+<summary>Ручей / водопад</summary>
+<div class="sec-in">
+<div class="f"><label>Проточный ручей или каскад перед прудом</label><div class="seg"><button type="button" data-k="stream" data-v="0">Нет</button><button type="button" data-k="stream" data-v="1">Есть</button></div></div>
+<div class="row" id="strw" hidden>
+<div class="f"><label for="STRL">Длина</label><div class="in"><input id="STRL" inputmode="decimal" placeholder="0"><span>м</span></div></div>
+<div class="f"><label for="STRW">Ширина по верху</label><div class="in"><input id="STRW" inputmode="decimal" placeholder="0"><span>м</span></div></div>
+<div class="f"><label for="STRD">Глубина</label><div class="in"><input id="STRD" inputmode="decimal" placeholder="0"><span>м</span></div></div>
+</div>
+</div>
+</details>
+
+<details class="sec" id="sec-fish">
+<summary>Рыба</summary>
+<div class="sec-in">
+<label>Какую рыбу планируете (можно несколько)</label>
+<div class="chips" id="fishpick"></div>
+<div id="fishkg"></div>
+</div>
+</details>
+
+<details class="sec" id="sec-film" open>
+<summary>Плёнка и геотекстиль</summary>
+<div class="sec-in">
+<div class="f"><label for="FT">Тип плёнки</label><select id="FT"><option value="pvc">ПВХ (1,0 мм)</option><option value="epdm">Бутилкаучук / EPDM (1,0–1,5 мм)</option><option value="pe">Полиэтилен (0,5–1 мм)</option></select></div>
+<div class="row">
+<div class="f"><label for="RW">Ширина рулона</label><select id="RW"><option value="0">Не учитывать</option><option>1.5</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>10</option><option>12</option><option>15</option></select></div>
+<div class="f"><label for="RL">Длина рулона</label><div class="in"><input id="RL" inputmode="decimal" placeholder="20"><span>м</span></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="PR">Цена за м²</label><div class="in"><input id="PR" inputmode="decimal" placeholder="0"><span id="cur1">₽</span></div></div>
+<div class="f"><label for="CUR">Валюта</label><select id="CUR"><option value="eur">€ евро</option><option value="rub">₽ рубль</option><option value="usd">$ доллар</option></select></div>
+</div>
+<div class="row">
+<div class="f"><label for="GTD">Геотекстиль, плотность</label><select id="GTD"><option value="200">200 г/м²</option><option value="300" selected>300 г/м²</option><option value="500">500 г/м²</option></select></div>
+<div class="f"><label for="GTL">Слоёв</label><select id="GTL"><option value="1">1</option><option value="2">2</option></select></div>
+</div>
+<div class="f"><label for="GTP">Цена геотекстиля за м²</label><div class="in"><input id="GTP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+</div>
+</details>
+
+<details class="sec" id="sec-equip">
+<summary>Оборудование</summary>
+<div class="sec-in">
+<div class="row">
+<div class="f"><label for="FL">Расход шланга</label><div class="in"><input id="FL" inputmode="decimal" placeholder="30"><span>л/мин</span></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="PUMPP">Насос, цена</label><div class="in"><input id="PUMPP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+<div class="f"><label for="FILTP">Фильтр, цена</label><div class="in"><input id="FILTP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="UVP">УФ-лампа, цена</label><div class="in"><input id="UVP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+<div class="f"><label for="HOSEP">Шланги, цена</label><div class="in"><input id="HOSEP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+</div>
+<div class="f"><label>Скиммер</label><div class="seg"><button type="button" data-k="skim" data-v="0">Нет</button><button type="button" data-k="skim" data-v="1">Есть</button></div></div>
+<div class="f"><label>Донный слив</label><div class="seg"><button type="button" data-k="bdrain" data-v="0">Нет</button><button type="button" data-k="bdrain" data-v="1">Есть</button></div></div>
+<div class="f"><label>Перелив</label><div class="seg"><button type="button" data-k="overflow" data-v="0">Нет</button><button type="button" data-k="overflow" data-v="1">Есть</button></div></div>
+</div>
+</details>
+
+<details class="sec" id="sec-care">
+<summary>Уход и вода</summary>
+<div class="sec-in">
+<div class="grp">Мои тесты воды</div>
+<div class="row">
+<div class="f"><label for="WTEMP">Температура воды</label><div class="in"><input id="WTEMP" inputmode="decimal" placeholder="напр. 20"><span>°C</span></div></div>
+<div class="f"><label for="WPH">pH</label><div class="in"><input id="WPH" inputmode="decimal" placeholder="напр. 7,5"></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="WNH3">Аммиак NH₃/NH₄⁺</label><div class="in"><input id="WNH3" inputmode="decimal" placeholder="0"><span>мг/л</span></div></div>
+<div class="f"><label for="WNO2">Нитрит NO₂</label><div class="in"><input id="WNO2" inputmode="decimal" placeholder="0"><span>мг/л</span></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="WNO3">Нитрат NO₃</label><div class="in"><input id="WNO3" inputmode="decimal" placeholder="напр. 10"><span>мг/л</span></div></div>
+<div class="f"><label for="WKH">KH карбонатная</label><div class="in"><input id="WKH" inputmode="decimal" placeholder="напр. 120"><span>мг/л</span></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="WDO">Кислород DO</label><div class="in"><input id="WDO" inputmode="decimal" placeholder="напр. 7"><span>мг/л</span></div></div>
+</div>
+<div class="grp">Обслуживание</div>
+<div class="f"><label for="WCHANGE">Подмена воды</label><div class="in"><input id="WCHANGE" inputmode="decimal" placeholder="15"><span>% в неделю</span></div></div>
+</div>
+</details>
+
+<details class="sec" id="sec-site">
+<summary>Участок и земляные работы</summary>
+<div class="sec-in">
+<div class="f"><label for="SOIL">Тип грунта</label><select id="SOIL"><option value="clay">Глина</option><option value="loam" selected>Суглинок</option><option value="sand">Песок</option><option value="peat">Торф</option><option value="rocky">Каменистый</option></select></div>
+<div class="f"><label for="HGT">Борт над землёй</label><div class="in"><input id="HGT" inputmode="decimal" placeholder="0"><span>м</span></div></div>
+<div class="row">
+<div class="f"><label for="SA">Песчаная подушка</label><div class="in"><input id="SA" inputmode="decimal" placeholder="5"><span>см</span></div></div>
+<div class="f"><label for="DR">Вода ниже края</label><div class="in"><input id="DR" inputmode="decimal" placeholder="10"><span>см</span></div></div>
+</div>
+<div class="row">
+<div class="f"><label for="SANDP">Песок, цена за м³</label><div class="in"><input id="SANDP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+<div class="f"><label for="GRAVP">Гравий, цена за м³</label><div class="in"><input id="GRAVP" inputmode="decimal" placeholder="0"><span class="cur">₽</span></div></div>
+</div>
+</div>
+</details>
+
+<details class="sec" id="sec-climate">
+<summary>Климат и зимовка</summary>
+<div class="sec-in">
+<div class="f"><label for="TEMP">Минимальная температура зимой</label><select id="TEMP"><option value="-10" selected>до −10 °C</option><option value="-15">до −15 °C</option><option value="-20">до −20 °C</option><option value="-25">до −25 °C</option><option value="-30">до −30 °C</option><option value="-99">ниже −30 °C</option></select></div>
+<div class="f"><label>Показать зимние процедуры</label><div class="seg"><button type="button" data-k="winter" data-v="0">Нет</button><button type="button" data-k="winter" data-v="1">Да</button></div></div>
+</div>
+</details>
+
+<details class="sec" id="sec-garden">
+<summary>Сад, растения, безопасность</summary>
+<div class="sec-in">
+<div class="f"><label>Список растений по зонам</label><div class="seg"><button type="button" data-k="plants" data-v="0">Скрыть</button><button type="button" data-k="plants" data-v="1">Показать</button></div></div>
+<div class="f"><label>Чек-лист безопасности</label><div class="seg"><button type="button" data-k="safety" data-v="0">Скрыть</button><button type="button" data-k="safety" data-v="1">Показать</button></div></div>
+<div class="f"><label>Сравнение с готовой формой</label><div class="seg"><button type="button" data-k="formcmp" data-v="0">Скрыть</button><button type="button" data-k="formcmp" data-v="1">Показать</button></div></div>
+</div>
+</details>
+
+<details class="sec" id="sec-refs">
+<summary>Справочники</summary>
+<div class="sec-in">
+<div class="f"><label>Совместимость рыб (таблица)</label><div class="seg"><button type="button" data-k="fishmat" data-v="0">Скрыть</button><button type="button" data-k="fishmat" data-v="1">Показать</button></div></div>
+<div class="f"><label>Нормы воды</label><div class="seg"><button type="button" data-k="norms" data-v="0">Скрыть</button><button type="button" data-k="norms" data-v="1">Показать</button></div></div>
+<div class="f"><label>Сезонный календарь</label><div class="seg"><button type="button" data-k="calendar" data-v="0">Скрыть</button><button type="button" data-k="calendar" data-v="1">Показать</button></div></div>
+<div class="f"><label>Симптомы и причины</label><div class="seg"><button type="button" data-k="symptoms" data-v="0">Скрыть</button><button type="button" data-k="symptoms" data-v="1">Показать</button></div></div>
+<div class="f"><label>Запуск пруда</label><div class="seg"><button type="button" data-k="startup" data-v="0">Скрыть</button><button type="button" data-k="startup" data-v="1">Показать</button></div></div>
+</div>
+</details>
+
+<details class="sec" id="sec-variants">
+<summary>Варианты и обмен</summary>
+<div class="sec-in">
+<div class="f"><label for="vname">Имя варианта</label><div class="in"><input id="vname" placeholder="Мой пруд"></div></div>
+<div class="tools" style="margin-top:0">
+<button class="chip" id="vsave" type="button">Сохранить</button>
+<button class="chip" id="vdel" type="button">Удалить</button>
+</div>
+<div class="f" style="margin-top:10px"><label for="vlist">Сохранённые варианты</label><select id="vlist"><option value="">— нет —</option></select></div>
+<div class="tools" style="margin-top:0">
+<button class="chip" id="share" type="button">Скопировать ссылку</button>
+</div>
+</div>
+</details>
+
+</section>
+
+<section aria-live="polite">
+<p class="msg" id="msg"></p>
+
+<div class="sticky-res">
+<div class="res">
+<div class="big"><small>Плёнки с запасом</small><b><span id="rTot">—</span><i>м²</i></b></div>
+<div class="m"><small>Размер полотна</small><b id="rSheet">—</b></div>
+<div class="m"><small>Без запаса</small><b id="rBase">—</b></div>
+<div class="m"><small>Вес полотна</small><b id="rWeight">—</b></div>
+<div class="m"><small>Рулонов к заказу</small><b id="rRolls">—</b></div>
+<div class="m"><small>Объём воды</small><b id="rVol">—</b></div>
+<div class="m"><small>Площадь зеркала</small><b id="rSurf">—</b></div>
+</div>
+</div>
+
+<details class="sec" id="sec-care-res" open>
+<summary>Уход и вода</summary>
+<div class="sec-in">
+<div id="wqblock"></div>
+<div id="feedblock"></div>
+<div id="careblock"></div>
+</div>
+</details>
+
+<details class="sec" id="fishres" hidden>
+<summary>Рыба: совместимость, нормы и кормление</summary>
+<div class="sec-in" id="fishbody"></div>
+</details>
+
+<details class="sec" id="sec-estimate" open>
+<summary>Смета и список покупок</summary>
+<div class="sec-in">
+<div id="more"></div>
+<div class="grp" style="margin-top:16px">Список покупок</div>
+<ul class="shop" id="shop"></ul>
+</div>
+</details>
+
+<details class="sec" id="sec-draw" open>
+<summary>Чертежи</summary>
+<div class="sec-in">
+<p class="cap">Разрез поперёк пруда (по самой глубокой части)</p>
+<svg id="svg" viewBox="0 0 640 230" role="img" aria-label="Поперечный разрез пруда"></svg>
+<div id="lw" hidden><p class="cap">Разрез вдоль пруда: скос дна</p>
+<svg id="svg2" viewBox="0 0 640 230" role="img" aria-label="Продольный разрез пруда"></svg></div>
+<p class="cap">Развёртка полотна: линия — край воды, пунктир — дно</p>
+<svg id="plan" viewBox="0 0 640 190" role="img" aria-label="Развёртка полотна"></svg>
+</div>
+</details>
+
+<details class="sec" id="sec-recs" open>
+<summary>Рекомендации</summary>
+<div class="sec-in">
+<ul class="note" id="recs"></ul>
+</div>
+</details>
+
+<details class="sec" id="plantsec" hidden>
+<summary>Растения по зонам</summary>
+<div class="sec-in"><dl class="plants" id="plants"></dl></div>
+</details>
+
+<details class="sec" id="wintersec" hidden>
+<summary>Зимние процедуры</summary>
+<div class="sec-in"><ul class="note" id="winterlist"></ul></div>
+</details>
+
+<details class="sec" id="safetysec" hidden>
+<summary>Безопасность</summary>
+<div class="sec-in"><ul class="note" id="safetylist"></ul></div>
+</details>
+
+<details class="sec" id="formsec" hidden>
+<summary>Плёнка или готовая форма</summary>
+<div class="sec-in"><p class="note" id="formcmp" style="padding-left:0"></p></div>
+</details>
+
+<details class="sec" id="fishmatsec" hidden>
+<summary>Совместимость рыб</summary>
+<div class="sec-in"><div style="overflow-x:auto" id="fishmat"></div></div>
+</details>
+
+<details class="sec" id="normssec" hidden>
+<summary>Нормы воды</summary>
+<div class="sec-in">
+<table class="normtable">
+<thead><tr><th>Параметр</th><th>Идеал</th><th>Опасно</th><th>Что делать</th></tr></thead>
+<tbody>
+<tr><td>pH</td><td>6,5–8,5</td><td>&lt;6,0 / &gt;9,0</td><td>Подмена, буфер KH</td></tr>
+<tr><td>Аммиак NH₃</td><td>0–0,1 мг/л</td><td>&gt;0,25 мг/л</td><td>Подмена 30–50 %, аэрация, бактерии</td></tr>
+<tr><td>Нитрит NO₂</td><td>0–0,25 мг/л</td><td>&gt;0,5 мг/л</td><td>Подмена, соль 1–3 г/л, аэрация</td></tr>
+<tr><td>Нитрат NO₃</td><td>&lt;20 мг/л</td><td>&gt;40 мг/л</td><td>Подмена, больше растений</td></tr>
+<tr><td>KH</td><td>100–200 мг/л</td><td>&lt;50 мг/л</td><td>Сода/буфер, стабильный pH</td></tr>
+<tr><td>Кислород DO</td><td>&gt;6 мг/л</td><td>&lt;4 мг/л</td><td>Аэратор, ручей, тень</td></tr>
+<tr><td>Температура</td><td>по рыбе</td><td>&gt;28 °C / &lt;2 °C</td><td>Тень, аэратор, зимний режим</td></tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details class="sec" id="calsec" hidden>
+<summary>Сезонный календарь</summary>
+<div class="sec-in">
+<div class="cal">
+<div><b>Весна</b><p>При температуре воды выше 8 °C — запуск бактерий. При 10 °C — первое кормление wheatgerm. Проверить насос и фильтр, убрать листву. Первый тест воды.</p></div>
+<div><b>Лето</b><p>Кормление 2–3 раза в день. Контроль кислорода — ночью и в жару падает. Подмены 10–20 % в неделю. При температуре выше 25 °C — притенение.</p></div>
+<div><b>Осень</b><p>Переход на wheatgerm при 12 °C. Убрать опавшую листву и отмершие растения. Подготовить аэратор к зиме. УФ-лампу выключить.</p></div>
+<div><b>Зима</b><p>Не бить лёд — только продувка аэратором. Полынья 10–20 % поверхности. Распылитель на 30–40 см от поверхности. Не кормить при температуре ниже 8 °C.</p></div>
+</div>
+</div>
+</details>
+
+<details class="sec" id="symptsec" hidden>
+<summary>Симптомы и причины</summary>
+<div class="sec-in">
+<table class="symtable">
+<tbody>
+<tr><td>Рыба у поверхности, хватает воздух</td><td>Кислород ниже 4 мг/л, высокий аммиак, перенаселение</td><td>Аэратор, подмена 30 %, тест воды</td></tr>
+<tr><td>Вялость, отказ от корма, бледность</td><td>Аммиак, нитрит, pH, стресс, болезнь</td><td>Тест воды, подмена, соль 1–3 г/л</td></tr>
+<tr><td>Тёмные жабры, коричневая кровь</td><td>Нитрит (метгемоглобинемия)</td><td>Соль 3 г/л, подмена, аэрация</td></tr>
+<tr><td>Чешется о дно и стенки</td><td>Паразиты, плохая вода, хлор</td><td>Тест, антипаразитарное, дехлорирование</td></tr>
+<tr><td>Пузыри на теле, плавает боком</td><td>Газовый пузырь, перенасыщение O₂</td><td>Убрать водопад, снизить аэрацию, подмена</td></tr>
+<tr><td>Пятна, язвы, разрушение плавников</td><td>Бактериальная инфекция</td><td>Изолировать, антибиотик по назначению ветеринара</td></tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<details class="sec" id="startupsec" hidden>
+<summary>Запуск пруда: азотный цикл</summary>
+<div class="sec-in">
+<ul class="note">
+<li>День 0: залить воду, запустить насос и фильтр. УФ-лампу <b>не включать</b>.</li>
+<li>День 1–3: тест на аммиак. Норма — 0. Если есть — подмена 30–50 %.</li>
+<li>День 3–7: внести нитрифицирующие бактерии. УФ не включать 48–72 ч после внесения.</li>
+<li>День 7–14: тест на нитрит. Пик нитрита — нормально, ждать.</li>
+<li>День 14–21: аммиак и нитрит по нулям — первая рыба, 1/3 от планируемого.</li>
+<li>Через 2 недели после первого заселения — повторный тест, доселение до полной плотности.</li>
+<li>УФ-лампу включать только после полного цикла и без бактерий.</li>
+</ul>
+</div>
+</details>
+
+<div class="tools noprint" style="margin-top:16px">
+<button class="chip" id="copy" type="button">Скопировать результат</button>
+<button class="chip" id="print" type="button">Печать / PDF</button>
+<button class="chip" id="reset" type="button">Сбросить всё</button>
+</div>
+
+</section>
+</div>
+</main>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var CURSYM={rub:'₽',eur:'€',usd:'$'};
+var SP=[
+{id:'koi',sh:'Кои',n:'Кои',t:[2,30,18,24],ph:'7,0–8,5',do2:6,dep:1.5,den:3,minV:10,size:'до 60–90 см',
+ note:'Зимой при воде ниже 8–10 °C не кормите, держите воду чистой и с аэрацией. Плохо переносят резкие перепады температуры и pH. Выше 26 °C кормите меньше и следите за кислородом.',
+ feed:[[22,'плавающие гранулы, белок 35–40 %','2–3 раза в день',2,3],[16,'плавающие гранулы, белок 30–35 %','2–3 раза в день',1.5,2.5],[12,'пшеничный зародыш (wheatgerm)','1–2 раза в день',1,1.5],[8,'wheatgerm малыми порциями','1 раз в день',0.5,1],[0,'не кормить','—',0,0]]},
+{id:'gold',sh:'Золотая',n:'Золотая рыбка (комета)',t:[2,30,15,22],ph:'6,8–8,0',do2:5,dep:1,den:1,size:'до 25–30 см',
+ note:'Неприхотлива, зимует при глубине от 1 м и открытой полынье. Вуалевые породы в уличном пруду зимой не оставляйте.',
+ feed:[[18,'хлопья или гранулы, белок 28–35 %','2 раза в день',1.5,2.5],[12,'гранулы, wheatgerm','1–2 раза в день',1,1.5],[8,'wheatgerm малыми порциями','1 раз в день',0.5,1],[0,'не кормить','—',0,0]]},
+{id:'stur',sh:'Осётр',n:'Осётр / стерлядь',t:[4,25,16,22],ph:'7,0–8,0',do2:6,dep:1.5,den:8,size:'стерлядь до 1 м, осётр крупнее',
+ note:'Донная рыба: дно без острых предметов, корм только тонущий. Нужна аэрация и чистая вода. Чувствителен к соли, формалину и меди, лечите в отдельной ёмкости. Пруд лучше накрыть сеткой.',
+ feed:[[20,'тонущие гранулы для осетровых, белок 40–45 %','2–3 раза в день',1.5,2.5],[14,'тонущие гранулы для осетровых','2 раза в день',1,2],[8,'тонущие гранулы малыми порциями','1 раз в день',0.5,1],[0,'не кормить','—',0,0]]},
+{id:'trout',sh:'Форель',n:'Радужная форель',t:[2,20,10,16],ph:'6,5–8,0',do2:7,dep:2,den:4,size:'до 40–60 см',
+ note:'Нужна холодная вода и много кислорода: выше 18–20 °C ей плохо. Нужны проточность или мощная аэрация, тень и сетка, потому что рыба прыгает. Хищная: мелких рыб съест.',
+ feed:[[19,'жара: корм по минимуму, утром, при кислороде от 7 мг/л','1 раз в день',0,0.5],[16,'плавающие или медленно тонущие гранулы, белок 40–45 %','2–3 раза в день',1.5,2],[10,'гранулы, белок 40–45 %','2 раза в день',1,1.5],[5,'гранулы малыми порциями','1 раз в день',0.5,1],[0,'не кормить','—',0,0]]},
+{id:'tench',sh:'Линь',n:'Линь',t:[2,30,18,24],ph:'6,5–8,0',do2:4,dep:1,den:1.5,size:'до 40–50 см',
+ note:'Мирный, любит мягкое дно и заросли, держится в укрытиях. Подбирает остатки корма со дна, но не заменяет уборку.',
+ feed:[[18,'тонущие гранулы, белок 25–30 %','1–2 раза в день',1,1.5],[12,'гранулы, wheatgerm','1 раз в день',0.5,1],[8,'малыми порциями','редко',0.3,0.5],[0,'не кормить','—',0,0]]},
+{id:'crucian',sh:'Карась',n:'Карась',t:[1,32,15,25],ph:'6,5–8,5',do2:3,dep:0.8,den:1.5,size:'до 30–40 см',
+ note:'Очень неприхотлив, терпит бедную кислородом воду и зимует на небольшой глубине. Скрещивается с золотой рыбкой и кои.',
+ feed:[[18,'гранулы, белок 25–30 %, зерновые смеси','1–2 раза в день',1,2],[10,'гранулы, wheatgerm','1 раз в день',0.5,1],[0,'не кормить','—',0,0]]},
+{id:'grass',sh:'Амур',n:'Белый амур',t:[5,30,20,28],ph:'7,0–8,5',do2:5,dep:1.5,den:2,minV:10,size:'до 60–100 см',
+ note:'Растительноядный: уничтожит водные растения, поэтому с биоплато и посадками несовместим. Растёт быстро, нужен большой объём и зелёный корм.',
+ feed:[[18,'зелень, ряска, овощи, травоядные гранулы белок 20–25 %','1–2 раза в день',2,4],[10,'зелень малыми порциями','1 раз в день',1,2],[0,'не кормить','—',0,0]]}
+];
+var PAIRS={
+'koi|gold':['ok','Мирные соседи. Возможны бесплодные гибриды.'],
+'koi|stur':['cond','Часто держат вместе, но осётру нужно больше кислорода, а лекарства для кои (соль, формалин, медь) для него опасны. Корм разный: кои плавающий, осётр тонущий.'],
+'koi|trout':['no','Разные режимы: форели нужно холоднее 18 °C и много кислорода, кои комфортнее при 18–24 °C. Форель может ловить мелкую рыбу.'],
+'koi|tench':['ok','Мирные соседи, линь подбирает остатки со дна.'],
+'koi|crucian':['ok','Мирные соседи, возможны гибриды.'],
+'koi|grass':['cond','Мирные, но амур съест водные растения.'],
+'gold|stur':['cond','Возможно, если золотые рыбки крупные: осётр может заглотить мелких. Осётр чувствителен к лекарствам.'],
+'gold|trout':['no','Форель хищная и съест мелких рыбок, режимы температуры и кислорода разные.'],
+'gold|tench':['ok','Мирные соседи.'],
+'gold|crucian':['ok','Родственные виды, возможны гибриды.'],
+'gold|grass':['cond','Амур уничтожает растения.'],
+'stur|trout':['cond','Сочетание используют в холодноводных хозяйствах, но режим задаёт форель: до 18 °C и кислород от 7 мг/л. Корм разный: форели плавающий, осётру тонущий. Следите, чтобы осётр успевал поесть.'],
+'stur|tench':['cond','Оба донные и едят тонущий корм: кормите так, чтобы хватало всем.'],
+'stur|crucian':['ok','Совместимы, карась неприхотлив.'],
+'stur|grass':['cond','Условия близки, но амур съест растения.'],
+'trout|tench':['no','Линь любит тёплую заросшую воду, форели нужна холодная и насыщенная кислородом.'],
+'trout|crucian':['no','Карась живёт в тёплой воде, форели нужна холодная, и она охотится на мелкую рыбу.'],
+'trout|grass':['no','Амур любит 20–28 °C, форель холод.'],
+'tench|crucian':['ok','Мирные, условия схожи.'],
+'tench|grass':['cond','Мирные, но амур съест растения, на которых держится линь.'],
+'crucian|grass':['cond','Мирные, но амур уничтожает растения.']
+};
+var CL={ok:'совместимы',cond:'с условиями',no:'не совместимы'};
+function compat(a,b){return PAIRS[a+'|'+b]||PAIRS[b+'|'+a]||['cond','Данных нет.']}
+function feedBand(sp,t){for(var i=0;i<sp.feed.length;i++){if(t>=sp.feed[i][0]){var b=sp.feed[i];return{type:b[1],freq:b[2],lo:b[3],hi:b[4]}}}var l=sp.feed[sp.feed.length-1];return{type:l[1],freq:l[2],lo:l[3],hi:l[4]}}
+function matrixHtml(){var sym={ok:'✓',cond:'~',no:'✕'},h='<table class="normtable cm"><thead><tr><th></th>'+SP.map(function(s){return '<th>'+s.sh+'</th>'}).join('')+'</tr></thead><tbody>';
+  SP.forEach(function(a){h+='<tr><th>'+a.sh+'</th>'+SP.map(function(b){if(a===b)return '<td>—</td>';var c=compat(a.id,b.id);return '<td class="cm-'+c[0]+'">'+sym[c[0]]+'</td>'}).join('')+'</tr>'});
+  return h+'</tbody></table><p class="note">✓ совместимы · ~ с условиями · ✕ не совместимы. Причины по каждой паре видны в блоке «Рыба», когда вы выбираете виды.</p>'}
+var ids=['L','W','D','D2','O','R','SW','SD','SA','DR','RW','RL','PR','FL','S','FT','BL','BW','BD','GTD','GTP','GTL','TEMP','HGT','STRL','STRW','STRD','PUMPP','FILTP','UVP','HOSEP','CUR','SOIL','SANDP','GRAVP','WTEMP','WPH','WNH3','WNO2','WNO3','WKH','WDO','WCHANGE'];
+SP.forEach(function(s){ids.push('K_'+s.id)});
+var DEF={S:'0',FT:'pvc',RW:'0',GTD:'300',GTL:'1',TEMP:'-10',CUR:'eur',SOIL:'loam'};
+var DST={ref:'top',shape:'rect',dm:'same',sf:'0',bp:'0',stream:'0',skim:'0',bdrain:'0',overflow:'0',plants:'0',winter:'0',safety:'0',formcmp:'0',norms:'0',calendar:'0',symptoms:'0',startup:'0'};
+SP.forEach(function(s){DST['f_'+s.id]='0'});DST.fishmat='0';
+var st=Object.assign({},DST),last='';
+
+var PRE={
+small:{shape:'oval',L:'3',W:'2',D:'0,8',dm:'same',S:'1',sf:'0',O:'0,4',plants:'1',formcmp:'1',skim:'0',bdrain:'0',overflow:'0'},
+fish:{shape:'rect',L:'6',W:'3',D:'1,2',dm:'same',S:'0.5',sf:'1',SW:'0,4',SD:'0,4',O:'0,5',plants:'1',winter:'1',skim:'0',bdrain:'1',overflow:'1'},
+koi:{shape:'oval',L:'8',W:'4',D:'1,8',dm:'same',S:'0.5',sf:'1',SW:'0,3',SD:'0,4',O:'0,5',SA:'5',plants:'1',winter:'1',skim:'1',bdrain:'1',overflow:'1'},
+st:{shape:'rect',L:'10',W:'5',D:'2',dm:'same',S:'0.5',sf:'0',O:'0,5',bp:'1',BL:'5',BW:'3',BD:'0,4',SA:'5',winter:'1',safety:'1',skim:'1',bdrain:'1',overflow:'1'},
+swim:{shape:'rect',L:'12',W:'5',D:'1',D2:'1,8',dm:'diff',S:'2',sf:'0',O:'0,6',SA:'10',safety:'1',skim:'1',bdrain:'1',overflow:'1'}
+};
+
+PRE.fish.f_gold='1';PRE.koi.f_koi='1';PRE.st.f_stur='1';PRE.st.f_trout='1';
+function num(id){var v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?NaN:v}
+function nz(id,d){var v=num(id);return isNaN(v)?d:v}
+function optPrice(id){var v=num(id);return(isNaN(v)||v<=0)?null:v}
+function f(n,d){if(n==null||isNaN(n))return'—';return n.toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function curSym(){return CURSYM[$('CUR').value]||'₽'}
+
+function save(){try{var o={st:st};ids.forEach(function(i){if($(i))o[i]=$(i).value});localStorage.setItem('pondcalc',JSON.stringify(o))}catch(e){}}
+function load(){try{var o=JSON.parse(localStorage.getItem('pondcalc'));if(o){ids.forEach(function(i){if(o[i]!=null&&$(i))$(i).value=o[i]});Object.assign(st,o.st||{})}}catch(e){}}
+function init(){ids.forEach(function(i){if($(i))$(i).value=DEF[i]!=null?DEF[i]:''});Object.assign(st,DST)}
+function apply(o){Object.keys(o).forEach(function(k){if(k in st)st[k]=o[k];else if($(k))$(k).value=o[k]})}
+
+function toggleSec(id,show){var el=$(id);if(!el)return;var was=el.hidden;el.hidden=!show;if(was&&show)el.open=true}
+
+function sec(id,pts,lt,lb,o){
+  var xs=pts.map(function(p){return p[0]}),mx=Math.min.apply(0,xs),Mx=Math.max.apply(0,xs),My=Math.max.apply(0,pts.map(function(p){return p[1]})),
+  sc=Math.min(572/(Mx-mx),125/My),gy=48,ox=320-(mx+Mx)/2*sc,n=pts.length,
+  T=function(p){return(ox+p[0]*sc).toFixed(1)+' '+(gy+p[1]*sc).toFixed(1)},
+  xa=ox+pts[1][0]*sc,xb=ox+pts[n-2][0]*sc,xl=ox+pts[0][0]*sc,xr=ox+pts[n-1][0]*sc;
+  var h='<rect x="0" y="'+gy+'" width="640" height="'+(230-gy)+'" fill="var(--earth)"/>';
+  h+='<path d="M'+pts.slice(1,n-1).map(T).join('L')+'Z" fill="var(--water)"/>';
+  h+='<path d="M'+pts.map(T).join('L')+'" fill="none" stroke="var(--film)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>';
+  h+='<text class="t" x="320" y="'+(gy-26)+'" text-anchor="middle">'+lt+'</text><path d="M'+xa+' '+(gy-14)+'L'+xb+' '+(gy-14)+'" stroke="var(--mute)"/>';
+  h+='<text class="t2" x="'+(xl+xa)/2+'" y="'+(gy-8)+'" text-anchor="middle">'+f(o,1)+' м</text><text class="t2" x="'+(xb+xr)/2+'" y="'+(gy-8)+'" text-anchor="middle">'+f(o,1)+' м</text>';
+  h+='<text class="t" x="320" y="'+(gy+My*sc+22)+'" text-anchor="middle">'+lb+'</text>';
+  $(id).innerHTML=h;
+}
+
+function plan(sL,sW,o,P1,Pw,Lbs,Wbd,oval){
+  var sc=Math.min(560/sL,140/sW),w=sL*sc,hh=sW*sc,x=(640-w)/2,y=(190-hh)/2+8,
+  S=function(a,b,c,d,at){return oval?'<ellipse cx="'+(a+c/2)+'" cy="'+(b+d/2)+'" rx="'+c/2+'" ry="'+d/2+'" '+at+'/>':'<rect x="'+a+'" y="'+b+'" width="'+c+'" height="'+d+'" rx="3" '+at+'/>'};
+  var h='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" rx="4" fill="var(--film)" fill-opacity=".16" stroke="var(--film)" stroke-width="3"/>';
+  h+=S(x+o*sc,y+o*sc,(sL-2*o)*sc,(sW-2*o)*sc,'fill="var(--water)" stroke="var(--water2)" stroke-width="1.5"');
+  h+=S(x+(o+P1)*sc,y+(o+Pw)*sc,Lbs*sc,Wbd*sc,'fill="none" stroke="var(--water2)" stroke-width="1.5" stroke-dasharray="5 4"');
+  h+='<text class="t" x="320" y="'+(y-8)+'" text-anchor="middle">'+f(sL,1)+' м</text><text class="t" x="'+(x-8)+'" y="'+(y+hh/2)+'" text-anchor="end">'+f(sW,1)+' м</text>';
+  $('plan').innerHTML=h;
+}
+
+var FILMDENS={pvc:1.4,epdm:1.3,pe:0.9};
+var FILMNAME={pvc:'ПВХ 1,0 мм',epdm:'EPDM 1,0 мм',pe:'ПЭ 0,5–1 мм'};
+var FROST={'-10':0.5,'-15':0.8,'-20':1.0,'-25':1.2,'-30':1.4,'-99':1.6};
+
+
+function calc0(){
+  var sh=st.shape==='oval',sf=st.sf==='1',df=st.dm==='diff',bp=st.bp==='1',stream=st.stream==='1';
+  var k=parseFloat($('S').value);
+  var L=num('L'),W=num('W'),D1=num('D'),D2=df?num('D2'):D1;
+  var o=nz('O',0.5),r=nz('R',7),sw=sf?nz('SW',0.4):0,sd=sf?nz('SD',0.4):0;
+  var sand=nz('SA',5),drop=nz('DR',10);
+  var rw=parseFloat($('RW').value),rl=num('RL')||20;
+  var price=optPrice('PR');
+  var flow=num('FL');
+  var sel=SP.filter(function(s){return st['f_'+s.id]==='1'}),has=function(i){return sel.some(function(s){return s.id===i})};
+  var fs=!sel.length?'plants':(has('trout')&&has('stur')?'st':has('trout')?'trout':has('stur')?'sturgeon':has('koi')?'koi':'fish');
+  var BL=num('BL'),BW=num('BW'),BD=nz('BD',0.4);
+  var HGT=num('HGT')||0;
+  var GTD=parseFloat($('GTD').value),GTP=optPrice('GTP'),GTL=parseFloat($('GTL').value)||1;
+  var STRL=num('STRL')||0,STRW=num('STRW')||0,STRD=num('STRD')||0;
+  var PUMPP=optPrice('PUMPP'),FILTP=optPrice('FILTP'),UVP=optPrice('UVP'),HOSEP=optPrice('HOSEP');
+  var TEMP=$('TEMP').value,soil=$('SOIL').value;
+  var SANDP=optPrice('SANDP'),GRAVP=optPrice('GRAVP');
+  var cur=curSym();
+  document.querySelectorAll('.cur').forEach(function(e){e.textContent=cur});
+  if($('cur1'))$('cur1').textContent=cur;
+
+  // Уход и вода
+  var wt=num('WTEMP'),wph=num('WPH'),wnh3=num('WNH3'),wno2=num('WNO2'),wno3=num('WNO3'),wkh=num('WKH'),wdo2=num('WDO');
+  var wchange=num('WCHANGE');
+
+  document.querySelectorAll('.seg button[data-k]').forEach(function(b){b.setAttribute('aria-pressed',st[b.dataset.k]===b.dataset.v?'true':'false')});
+  SP.forEach(function(s){var on=st['f_'+s.id]==='1';$('fc_'+s.id).setAttribute('aria-pressed',on?'true':'false');$('kw_'+s.id).hidden=!on});
+  $('refw').hidden=!(k>0||sf);$('d2w').hidden=!df;$('shw').hidden=!sf;$('bpw').hidden=!bp;$('strw').hidden=!stream;$('lw').hidden=!df;
+  $('lD').textContent=df?'Глубина одного края':'Глубина';
+  toggleSec('plantsec',st.plants==='1');toggleSec('wintersec',st.winter==='1');toggleSec('safetysec',st.safety==='1');toggleSec('formsec',st.formcmp==='1');
+  toggleSec('normssec',st.norms==='1');toggleSec('fishmatsec',st.fishmat==='1');toggleSec('calsec',st.calendar==='1');toggleSec('symptsec',st.symptoms==='1');toggleSec('startupsec',st.startup==='1');
+
+  var msg=$('msg');msg.textContent='';msg.style.color='';save();
+  if(isNaN(L)||isNaN(W)||isNaN(D1)||isNaN(D2)||L<=0||W<=0||D1<=0||D2<=0||o<0||r<0||sw<0||sd<0||sand<0||drop<0||HGT<0){
+    msg.style.color=(isNaN(L)&&isNaN(W)&&isNaN(D1))?'var(--mute)':'';
+    msg.textContent=(isNaN(L)||isNaN(W)||isNaN(D1)||isNaN(D2))?'Введите длину, ширину и глубину пруда (при уклоне дна обе глубины): расчёт появится сразу.':'Проверьте числа: они должны быть положительными.';return}
+  var Dm=(D1+D2)/2,Dx=Math.max(D1,D2),q=Math.sqrt(1+k*k);
+  if(sf&&Math.min(D1,D2)<sd+0.2){msg.textContent='Полка должна быть минимум на 20 см мельче самой мелкой глубины.';return}
+  if(drop/100>=Dm){msg.textContent='Уровень воды ниже края больше глубины пруда.';return}
+  if(bp&&([BL,BW,BD].some(isNaN)||BL<=0||BW<=0||BD<=0)){msg.textContent='Заполните размеры биоплато.';return}
+  if(stream&&([STRL,STRW,STRD].some(isNaN)||STRL<=0||STRW<=0||STRD<=0)){msg.textContent='Заполните размеры ручья положительными числами.';return}
+  var heavy=['sturgeon','trout','st'].indexOf(fs)>=0;
+
+  var run=function(d){return k*d+sw},P=function(d){return sf?sd*q+sw+(d-sd)*q:d*q},Lt,Wt,Lb,Wbd,Wbm;
+  if(st.ref==='top'){Lt=L;Wt=W;Lb=L-run(D1)-run(D2);Wbd=W-2*run(Dx);Wbm=W-2*run(Dm)}
+  else{Lb=L;Wbd=W;Wbm=W;Lt=L+run(D1)+run(D2);Wt=W+2*run(Dx)}
+  if(Lb<=0||Wbd<=0){msg.textContent='При таких откосе, полках и глубине дно получается нулевым. Уменьшите глубину, полку или сделайте стенки круче.';return}
+  var Lbs=Math.sqrt(Lb*Lb+(D2-D1)*(D2-D1)),sL=P(D1)+Lbs+P(D2)+2*o+2*HGT,sW=Wbd+2*P(Dx)+2*o+2*HGT;
+  var a=sL*sW,tot=a*(1+r/100),fa=sh?Math.PI/4:1;
+
+  function vol(H){var zs=sf?Dm-sd:1e9,n=400,v=0,z,h;for(var i=0;i<n;i++){z=(i+.5)*H/n;h=z<=zs?k*z:k*zs+sw+k*(z-zs);v+=fa*(Lb+2*h)*(Wbm+2*h)*H/n}return v}
+  var V=vol(Dm),Vw=vol(Dm-drop/100),surf=fa*Lt*(Wbm+2*run(Dm));
+  var V0=V,Vabv=fa*Lt*(Wbm+2*run(Dm))*HGT;V+=Vabv;
+  var sandV=fa*(sL-2*o)*(sW-2*o)*sand/100,pit=V0+sandV,lit=Vw*1000;
+
+  // Ручей
+  var strFilmL=0,strFilmW=0,strArea=0,strVol=0;
+  if(stream){
+    if(STRW-2*k*STRD<=0){msg.textContent='Ручей: при таком откосе и глубине дно нулевое.';return}
+    strFilmL=STRL+2*o;
+    strFilmW=(STRW-2*k*STRD)+2*STRD*q+2*o;
+    strArea=strFilmL*strFilmW;
+    strVol=STRL*STRW*STRD*0.8;
+  }
+
+  var gtBase=a+strArea;
+  var gtArea=gtBase*GTL;
+
+  // Биоплато
+  var pb=null,pbArea=0,pbBuy=0,pbGravel=0,pbExc=0,pbShare=0,pbSL=0,pbSW=0;
+  if(bp){
+    var pLb=BL-2*k*BD,pWb=BW-2*k*BD;
+    if(pLb<=0||pWb<=0){msg.textContent='Биоплато: при таком откосе и глубине дно нулевое. Уменьшите глубину.';return}
+    var psl=BD*q,pSL=pLb+2*psl+2*o,pSW=pWb+2*psl+2*o,pTot=pSL*pSW*(1+r/100);
+    pbArea=pSL*pSW;pbSL=pSL;pbSW=pSW;pbBuy=pTot;
+    var pl=Math.max(pSL,pSW),ps=Math.min(pSL,pSW),pn=1;
+    if(rw>0){pn=ps<=rw?1:Math.ceil((ps-0.1)/(rw-0.1));pbBuy=pn*rw*pl*(1+r/100)}
+    var Hs=Math.max(BD-0.1,0.05),zz;
+    for(var i=0;i<100;i++){zz=(i+.5)*Hs/100;pbGravel+=(pLb+2*k*zz)*(pWb+2*k*zz)*Hs/100}
+    for(var j=0;j<100;j++){zz=(j+.5)*BD/100;pbExc+=(pLb+2*k*zz)*(pWb+2*k*zz)*BD/100}
+    pbShare=BL*BW/surf;
+    pit+=pbExc;pb=true;
+  }
+
+  // Рулоны
+  var lng=Math.max(sL,sW),shr=Math.min(sL,sW),nS=1,buy=tot;
+  if(rw>0){nS=shr<=rw?1:Math.ceil((shr-0.1)/(rw-0.1));buy=nS*rw*lng*(1+r/100)}
+  var rolls=rw>0?Math.ceil(nS*lng*(1+r/100)/rl):0;
+  var pbRolls=0;
+  if(pb&&rw>0){var pl2=Math.max(pbSL,pbSW),ps2=Math.min(pbSL,pbSW),pn2=ps2<=rw?1:Math.ceil((ps2-0.1)/(rw-0.1));pbRolls=Math.ceil(pn2*pl2*(1+r/100)/rl)}
+
+  var strBuy=0,strRolls=0;
+  if(stream){strBuy=strArea*(1+r/100);if(rw>0){var sl2=Math.max(strFilmL,strFilmW),ss2=Math.min(strFilmL,strFilmW),sn=ss2<=rw?1:Math.ceil((ss2-0.1)/(rw-0.1));strBuy=sn*rw*sl2*(1+r/100);strRolls=Math.ceil(sn*sl2*(1+r/100)/rl)}}
+  // Вес
+  var dens=FILMDENS[$('FT').value],weight=buy*dens;
+  if(pb)weight+=pbBuy*dens;
+  weight+=strBuy*dens;
+
+  // Оборудование
+  var Vwork=Vw;
+  var pumpLo=Vwork/2,pumpHi=Vwork;
+  if(heavy){pumpLo=Vwork;pumpHi=Vwork*2}
+  var uvW=Math.max(5,Math.ceil(Vwork*1.25));
+  var filtVol=fs==='plants'?Vwork:Vwork*2;
+
+  // Зимовка
+  var frost=FROST[TEMP]||1.0;
+  var winterRisk=Dx<frost;
+
+  var capUse=0,anyKg=false;sel.forEach(function(s){var kg=nz('K_'+s.id,0);if(kg>0){anyKg=true;capUse+=kg/s.den}});
+
+  // Итоговый расход плёнки
+  var totalFilm=buy+(pb?pbBuy:0)+strBuy;
+  var totalRolls=rolls+(pb?pbRolls:0)+strRolls;
+
+  // Вывод
+  $('rTot').textContent=f(totalFilm,0);
+  $('rSheet').textContent=f(sL,1)+' × '+f(sW,1)+' м';
+  $('rBase').textContent=f(a,1)+' м²';
+  $('rWeight').textContent=f(weight,0)+' кг';
+  $('rRolls').textContent=rw>0?totalRolls+' шт':'—';
+  $('rVol').innerHTML=f(V,1)+' м³<br><span style="font-weight:500;font-size:14px;color:var(--mute)">'+f(V*1000,0)+' л</span>';
+  $('rSurf').textContent=f(surf,1)+' м²';
+
+  // Смета
+  var costs=[];
+  costs.push({group:'Плёнка и геотекстиль',items:[
+    {name:'Плёнка '+FILMNAME[$('FT').value],qty:f(totalFilm,1)+' м²',sum:price!=null?totalFilm*price:null},
+    {name:'Вес полотна',qty:f(weight,0)+' кг'},
+    {name:'Геотекстиль '+GTD+' г/м², '+GTL+' сл.',qty:f(gtArea,1)+' м²',sum:GTP!=null?gtArea*GTP:null},
+  ]});
+  costs.push({group:'Земляные работы',items:[
+    {name:'Грунт из котлована',qty:f(pit,1)+' м³'},
+    {name:'С разрыхлением ×1,25',qty:f(pit*1.25,1)+' м³'},
+    {name:'Песок на подушку',qty:f(sandV,1)+' м³',sum:SANDP!=null?sandV*SANDP:null},
+  ]});
+  if(pb){
+    costs.push({group:'Биоплато',items:[
+      {name:'Полотно',qty:f(pbSL,1)+' × '+f(pbSW,1)+' м'},
+      {name:'Гравий / песок',qty:f(pbGravel,1)+' м³',sum:GRAVP!=null?pbGravel*GRAVP:null},
+      {name:'К зеркалу пруда',qty:f(pbShare*100,0)+' %'},
+    ]});
+  }
+  if(stream){
+    costs.push({group:'Ручей / водопад',items:[
+      {name:'Плёнка на ручей',qty:f(strArea,1)+' м²'},
+      {name:'Полотно ручья',qty:f(strFilmL,1)+' × '+f(strFilmW,1)+' м'},
+      {name:'Объём ручья',qty:f(strVol,1)+' м³'},
+    ]});
+  }
+  costs.push({group:'Оборудование',items:[
+    {name:'Насос',qty:f(pumpLo,1)+'–'+f(pumpHi,1)+' м³/ч',sum:PUMPP},
+    {name:'Фильтр, объём',qty:f(filtVol,0)+' м³',sum:FILTP},
+    {name:'УФ-лампа',qty:f(uvW,0)+' Вт',sum:UVP},
+    {name:'Шланги',qty:'комплект',sum:HOSEP},
+    ...(isNaN(flow)||flow<=0?[]:[{name:'Заполнение шлангом',qty:f(lit/flow/60,1)+' ч'}]),
+  ]});
+  costs.push({group:'Вода',items:[
+    {name:'Рабочий объём',qty:f(lit,0)+' л'},
+  ]});
+
+  var totalCost=0;
+  var costsHtml=costs.map(function(g){
+    var rows=g.items.map(function(it){
+      if(it.sum!=null)totalCost+=it.sum;
+      return '<div class="line"><span>'+it.name+'</span><span class="qty">'+it.qty+'</span><span class="sum">'+(it.sum!=null?f(it.sum,0)+' '+cur:'—')+'</span></div>';
+    }).join('');
+    return '<div class="grp">'+g.group+'</div>'+rows;
+  }).join('');
+  if(totalCost>0){
+    costsHtml+='<div class="line total"><span>Итого по смете</span><span></span><span class="sum">'+f(totalCost,0)+' '+cur+'</span></div>';
+  }
+  $('more').innerHTML=costsHtml;
+
+  // Блок «Уход и вода» — качество воды
+  function st3(v,lo,hi,wlo,whi){if(isNaN(v))return null;if(v>=lo&&v<=hi)return'ok';if((v>=wlo&&v<lo)||(v>hi&&v<=whi))return'warn';return'bad'}
+  var statusLabel={ok:'норма',warn:'внимание',bad:'опасно'};
+  var tr=[5,28,2,30],dmin=6;
+  if(sel.length){var mx=function(k){return Math.max.apply(0,sel.map(function(s){return s.t[k]}))},mn=function(k){return Math.min.apply(0,sel.map(function(s){return s.t[k]}))};
+    tr=[mx(2),mn(3),mx(0),mn(1)];dmin=Math.max.apply(0,sel.map(function(s){return s.do2}))}
+  var wqc=[];
+  if(!isNaN(wph)) wqc.push({n:'pH',v:f(wph,1),s:st3(wph,6.5,8.5,6.0,9.0),r:'6,5–8,5',d:'Подмена, буфер KH'});
+  if(!isNaN(wnh3)) wqc.push({n:'Аммиак NH₃',v:f(wnh3,2)+' мг/л',s:wnh3<=0.1?'ok':wnh3<=0.25?'warn':'bad',r:'0',d:'Подмена 30–50%, аэрация, бактерии'});
+  if(!isNaN(wno2)) wqc.push({n:'Нитрит NO₂',v:f(wno2,2)+' мг/л',s:wno2<=0.25?'ok':wno2<=0.5?'warn':'bad',r:'0',d:'Соль 1–3 г/л, подмена, аэрация'});
+  if(!isNaN(wno3)) wqc.push({n:'Нитрат NO₃',v:f(wno3,0)+' мг/л',s:wno3<=20?'ok':wno3<=40?'warn':'bad',r:'<20 мг/л',d:'Подмена, растения'});
+  if(!isNaN(wkh)) wqc.push({n:'KH',v:f(wkh,0)+' мг/л',s:wkh>=100?'ok':wkh>=50?'warn':'bad',r:'100–200 мг/л',d:'Сода/буфер, стабильный pH'});
+  if(!isNaN(wdo2)) wqc.push({n:'Кислород DO',v:f(wdo2,1)+' мг/л',s:wdo2>=dmin?'ok':wdo2>=dmin-2?'warn':'bad',r:'от '+dmin+' мг/л',d:'Аэратор, ручей, тень'});
+  if(!isNaN(wt)) wqc.push({n:'Температура',v:f(wt,1)+' °C',s:(wt>=tr[0]&&wt<=tr[1])?'ok':(wt>=tr[2]&&wt<=tr[3])?'warn':'bad',r:tr[0]>tr[1]?'нет общего диапазона':'комфорт '+tr[0]+'–'+tr[1]+' °C',d:'Тень, аэратор'});
+  var wqHtml='';
+  if(wqc.length){
+    wqHtml='<div class="grp">Качество воды</div><div class="wqgrid">'+wqc.map(function(c){
+      return '<div class="wqcard '+c.s+'"><small>'+c.n+'</small><b>'+c.v+'</b><span class="st">'+statusLabel[c.s]+'</span><small>'+c.r+' · '+c.d+'</small></div>';
+    }).join('')+'</div>';
+  }
+  $('wqblock').innerHTML=wqHtml;
+
+  // Кормление по видам
+  var feedHtml='';
+  if(sel.length){
+    if(isNaN(wt))feedHtml='<div class="grp">Кормление</div><p class="note" style="padding:0">Укажите температуру воды в разделе «Уход и вода», чтобы получить норму по каждому виду.</p>';
+    else feedHtml='<div class="grp">Кормление при '+f(wt,1)+' °C</div><div style="overflow-x:auto"><table class="normtable"><thead><tr><th>Вид</th><th>Корм</th><th>Частота</th><th>% массы в день</th><th>В день</th></tr></thead><tbody>'+sel.map(function(s){
+      var kg=nz('K_'+s.id,0),b=feedBand(s,wt);
+      return '<tr><td>'+s.sh+'</td><td>'+b.type+'</td><td>'+b.freq+'</td><td>'+(b.hi>0?f(b.lo,1)+'–'+f(b.hi,1)+' %':'0 %')+'</td><td>'+(kg>0&&b.hi>0?f(kg*b.lo*10,0)+'–'+f(kg*b.hi*10,0)+' г':(kg>0?'0':'укажите массу'))+'</td></tr>'}).join('')+'</tbody></table></div><p class="note" style="padding:0">Норма даётся в процентах от массы рыбы за сутки, делите на число кормлений. Давайте столько, сколько рыба съедает за 3–5 минут, остатки убирайте. Это общие ориентиры: сверяйтесь с таблицей на упаковке корма.</p>';
+  }
+  $('feedblock').innerHTML=feedHtml;
+
+  // Аэрация, плотность, подмены
+  var careHtml='';
+  var careItems=[];
+  var aerTxt='';
+  if(Dx<1.2) aerTxt='Аэратор на 30–40 см от поверхности, не на дне. Глубина '+f(Dx,1)+' м мала для зимовки — риск промерзания.';
+  else if(Dx<1.5) aerTxt='Аэратор на 30–40 см от поверхности. Зимовальная яма 1,8–2,5 м даст запас.';
+  else aerTxt='Аэратор на 30–40 см от поверхности. Глубина '+f(Dx,1)+' м позволяет зимовку.';
+  careItems.push({n:'Зимняя аэрация',v:aerTxt});
+  if(sel.length){
+    if(anyKg){var ratio=capUse/Vwork;careItems.push({n:'Загрузка пруда рыбой',v:f(ratio*100,0)+' % от допустимой'+(ratio>1?' — перегруз':''),status:ratio>1?'bad':(ratio>0.8?'warn':'ok')})}
+    else careItems.push({n:'Допустимая масса рыбы',v:sel.map(function(s){return s.sh+' до '+f(Vwork*s.den,0)+' кг'}).join('; ')+' (если держать один вид)'});
+  }
+  if(!isNaN(wchange)&&wchange>0){
+    var ws=wchange<10?'warn':(wchange>25?'warn':'ok');
+    careItems.push({n:'Подмена воды',v:f(wchange,0)+' % в неделю = '+f(Vwork*1000*wchange/100,0)+' л',status:ws});
+    if(wchange<10) careItems.push({n:'',v:'Подмена мала. Обычно 10–20 % в неделю.'});
+  }
+  careHtml='<div class="grp">Обслуживание</div>'+careItems.map(function(c){
+    if(!c.n&&c.v)return '<div class="line"><span style="color:var(--mute);font-size:13px">'+c.v+'</span></div>';
+    var stl=c.status==='bad'?' class="warn"':(c.status==='warn'?' style="color:var(--amber)"':'');
+    return '<div class="line"><span>'+c.n+'</span><span'+stl+'>'+c.v+'</span></div>';
+  }).join('');
+  $('careblock').innerHTML=careHtml;
+  toggleSec('sec-care-res',!!(wqHtml||feedHtml||careItems.length));
+
+  var fh='';
+  if(sel.length){
+    fh+='<div class="grp">Нормы ухода</div><div style="overflow-x:auto"><table class="normtable"><thead><tr><th>Вид</th><th>Комфорт</th><th>pH</th><th>O₂ от</th><th>Глубина от</th><th>Плотность</th></tr></thead><tbody>'+sel.map(function(s){return '<tr><td>'+s.n+'<br><small>'+s.size+'</small></td><td>'+s.t[2]+'–'+s.t[3]+' °C<br><small>терпит '+s.t[0]+'–'+s.t[1]+'</small></td><td>'+s.ph+'</td><td>'+s.do2+' мг/л</td><td>'+f(s.dep,1)+' м</td><td>до '+s.den+' кг/м³</td></tr>'}).join('')+'</tbody></table></div>';
+    fh+='<ul class="note">'+sel.map(function(s){return '<li><b>'+s.sh+':</b> '+s.note+'</li>'}).join('')+'</ul>';
+    fh+='<div class="grp">Совместимость</div>';
+    if(sel.length<2)fh+='<p class="note" style="padding:0">Выберите ещё виды, чтобы увидеть совместимость по парам.</p>';
+    else for(var xi=0;xi<sel.length;xi++)for(var yi=xi+1;yi<sel.length;yi++){var cp=compat(sel[xi].id,sel[yi].id);fh+='<div class="line"><span><b>'+sel[xi].sh+' + '+sel[yi].sh+'</b> <span class="cm-'+cp[0]+'">'+CL[cp[0]]+'</span><br><small style="color:var(--mute)">'+cp[1]+'</small></span></div>'}
+    fh+='<ul class="note"><li>Новую рыбу держите в карантине 3–4 недели.</li><li>Запускайте рыбу порциями, чтобы биофильтр успел нарастить бактерии: начните примерно с трети планируемой массы.</li><li>Рыб сильно разного размера вместе не держите: крупные заглатывают мелких.</li><li>Цифры здесь общие ориентиры, уточняйте у поставщика рыбы и корма.</li></ul>';
+  }
+  $('fishbody').innerHTML=fh;toggleSec('fishres',sel.length>0);
+
+  // Список покупок
+  var shopItems=[];
+  shopItems.push('Плёнка '+FILMNAME[$('FT').value]+' — '+f(totalFilm,1)+' м²');
+  if(rw>0)shopItems.push('Рулоны плёнки '+rw+' м × '+rl+' м — '+totalRolls+' шт');
+  shopItems.push('Геотекстиль '+GTD+' г/м² — '+f(gtArea,1)+' м²');
+  shopItems.push('Песок — '+f(sandV,1)+' м³');
+  if(pb)shopItems.push('Гравий для биоплато — '+f(pbGravel,1)+' м³');
+  if(st.skim==='1')shopItems.push('Скиммер');
+  if(st.bdrain==='1')shopItems.push('Донный слив с решёткой');
+  if(st.overflow==='1')shopItems.push('Перелив');
+  shopItems.push('Насос '+f(pumpLo,1)+'–'+f(pumpHi,1)+' м³/ч');
+  shopItems.push('Фильтр '+f(filtVol,0)+' м³, УФ '+f(uvW,0)+' Вт');
+  $('shop').innerHTML=shopItems.map(function(t){return '<li><label><input type="checkbox"> <span>'+t+'</span></label></li>'}).join('');
+
+  // Рекомендации
+  var rc=[];
+  if(fs!=='plants'&&Dx<1)rc.push(['warn','Глубина меньше 1 м: в холодную зиму пруд может промёрзнуть до дна. Для зимовки рыбы нужно 1–1,2 м.']);
+  if(winterRisk&&fs!=='plants')rc.push(['warn','Для вашего климата глубина промерзания ~'+f(frost,1)+' м, а максимальная глубина '+f(Dx,1)+' м. Нужна продувка или углубление.']);
+  sel.forEach(function(s){if(Dx<s.dep)rc.push(['warn','Для вида «'+s.n+'» нужна глубина от '+f(s.dep,1)+' м, у вас '+f(Dx,1)+' м.']);if(s.minV&&Vw<s.minV)rc.push(['warn','Для вида «'+s.n+'» лучше объём от '+s.minV+' м³.'])});
+  for(var ai=0;ai<sel.length;ai++)for(var bi=ai+1;bi<sel.length;bi++){var cc=compat(sel[ai].id,sel[bi].id);if(cc[0]==='no')rc.push(['warn',sel[ai].sh+' и '+sel[bi].sh+' лучше не держать вместе: '+cc[1]])}
+  if(sel.length>1&&tr[0]>tr[1])rc.push(['warn','У выбранных видов нет общего комфортного диапазона температуры.']);
+  if(has('grass')&&(bp||st.plants==='1'))rc.push(['warn','Белый амур съедает водные растения: биоплато и посадки по зонам пострадают.']);
+  if(heavy&&!bp)rc.push(['warn','Для осетров и форели нужен мощный биофильтр — добавьте биоплато.']);
+  if(pb&&pbShare<(heavy?0.4:0.3))rc.push(['warn','Биоплато занимает '+f(pbShare*100,0)+' % зеркала. Обычно нужно от '+(heavy?'40':'30')+' %.']);
+  rc.push(['','Тип плёнки: '+FILMNAME[$('FT').value]+'.']);
+  if(rw>0&&nS>1)rc.push(['','Полотно шире рулона: нужны швы. Сварные стыки выносите на берег.']);
+  if(df)rc.push(['','Ширина полотна считается по глубокой части: на мелком краю будет запас.']);
+  if(sh)rc.push(['','Для овала полотно считается по описанному прямоугольнику; обрезки — запас.']);
+  if(k===0)rc.push(['','Вертикальные стенки: сделайте пологий выход для ежей, лягушек и птиц.']);
+  if(HGT>0)rc.push(['','Борт над землёй '+f(HGT,1)+' м: полотно увеличено, для борта нужна подпорная стенка.']);
+  if(soil==='sand')rc.push(['warn','Песчаный грунт: борта осыпаются, нужна георешётка/укрепление откосов.']);
+  if(soil==='peat')rc.push(['warn','Торф: сильная осадка, нужен запас по глубине и усиленная подушка.']);
+  if(soil==='rocky')rc.push(['','Каменистый грунт: геотекстиль в 2 слоя (500 г/м²) обязателен.']);
+  if(st.skim==='1')rc.push(['','Скиммер: установите напротив господствующего ветра, до укладки плёнки.']);
+  if(st.bdrain==='1')rc.push(['','Донный слив: вырез в плёнке герметизируется фланцем, до засыпки.']);
+  if(st.overflow==='1')rc.push(['','Перелив: вывод в дренаж, срабатывает при подъёме воды выше нормы.']);
+
+  // Комбинированные предупреждения по воде
+  if(wph>8&&wnh3>0.1)rc.push(['warn','pH '+f(wph,1)+' + аммиак '+f(wnh3,2)+' мг/л — токсичный аммиак. Срочно подмена 30–50 % и аэрация.']);
+  if(wno2>0.25&&wdo2<4)rc.push(['warn','Нитрит '+f(wno2,2)+' + кислород '+f(wdo2,1)+' — рыба в опасности. Соль 3 г/л, аэратор, подмена.']);
+  if(wt>25&&wdo2<5)rc.push(['warn','Тёплая вода '+f(wt,0)+' °C + низкий кислород: аэратор ночью, притенение.']);
+
+  $('recs').innerHTML=rc.map(function(x){return '<li'+(x[0]?' class="warn"':'')+'>'+x[1]+'</li>'}).join('');
+
+  // Статические блоки
+  var PLANTS=[
+    ['Берег (0–5 см)','Ирис болотный, калужница, осока, хоста, лилейник, астильба'],
+    ['Мелководье (5–20 см)','Калла болотная, ситник, стрелолист, белокрыльник, рогоз (ограниченно)'],
+    ['Полка (20–40 см)','Кувшинка карликовая, кубышка, рдест, водокрас'],
+    ['Глубина (40+ см)','Кувшинка, кубышка жёлтая, роголистник, элодея']
+  ];
+  $('plants').innerHTML=PLANTS.map(function(p){return '<dt>'+p[0]+'</dt><dd>'+p[1]+'</dd>'}).join('');
+
+  var WINTER=[
+    'Не выключайте аэратор на зиму — держите полынью открытой.',
+    'Не разбивайте лёд ударами: это стресс для рыбы. Используйте продувку.',
+    'Оставьте полынью 10–20 % поверхности.',
+    'Уберите отмершие растения, чтобы они не гнили подо льдом.',
+    'Если глубина меньше глубины промерзания, накройте пруд или переселите рыбу.'
+  ];
+  $('winterlist').innerHTML=WINTER.map(function(t){return '<li>'+t+'</li>'}).join('');
+
+  var SAFETY=[
+    'Пологая ступень-выход для животных (ежи, лягушки, птицы).',
+    'При глубине больше 40 см — сетка или ограждение, особенно если есть дети.',
+    'УФ-лампа и электрика — через УЗО, в защитном боксе.',
+    'Не оставляйте шланги и провода на путях движения.',
+    'Для форели — накрыть сеткой: рыба прыгает и может выброситься.'
+  ];
+  $('safetylist').innerHTML=SAFETY.map(function(t){return '<li>'+t+'</li>'}).join('');
+
+  var area=a,fc='';
+  if(area<25&&Dx<1){fc='Готовая форма (стеклопластик или ПВХ) часто дешевле и проще для пруда до 20–25 м² и глубины до 1 м. Сравните цену формы с комплектом плёнка + геотекстиль + песок.'}
+  else if(area<40&&Dx<1.5){fc='Для пруда такого размера готовая форма ещё встречается, но плёнка даёт свободу формы и ремонта. Сравните по цене.'}
+  else {fc='Готовых форм такого размера практически нет или они дороже плёнки. Плёнка — оптимальный вариант.'}
+  $('formcmp').textContent=fc;
+
+  // Чертежи
+  var wp=[[-Wt/2-o,0],[-Wt/2,0]];
+  if(sf)wp.push([-Wt/2+k*sd,sd],[-Wt/2+k*sd+sw,sd]);
+  wp.push([-Wbd/2,Dx]);
+  wp=wp.concat(wp.slice().reverse().map(function(p){return[-p[0],p[1]]}));
+  sec('svg',wp,'по верху '+f(Wt,1)+' м','дно '+f(Wbd,1)+' м, глубина '+f(Dx,1)+' м',o);
+  if(df){var b=run(D1),lp=[[-o,0],[0,0]];if(sf)lp.push([k*sd,sd],[k*sd+sw,sd]);lp.push([b,D1],[b+Lb,D2]);
+    if(sf)lp.push([b+Lb+k*(D2-sd),sd],[b+Lb+k*(D2-sd)+sw,sd]);lp.push([Lt,0],[Lt+o,0]);
+    sec('svg2',lp,'по верху '+f(Lt,1)+' м','дно '+f(Lb,1)+' м, глубина '+f(D1,1)+' → '+f(D2,1)+' м',o)}
+  plan(sL,sW,o,P(D1),P(Dx),Lbs,Wbd,sh);
+
+  last='Пруд '+f(Lt,1)+' × '+f(Wt,1)+' м, глубина '+f(D1,1)+(df?'–'+f(D2,1):'')+' м\nПолотно: '+f(sL,1)+' × '+f(sW,1)+' м\nПлёнки с запасом: '+f(totalFilm,0)+' м²\nВес: '+f(weight,0)+' кг\nРулонов: '+totalRolls+'\nОбъём: '+f(V,1)+' м³ = '+f(V*1000,0)+' л (рабочий '+f(lit,0)+' л)\nГрунт: '+f(pit,1)+' м³, песок: '+f(sandV,1)+' м³'+(totalCost>0?'\nИтого: '+f(totalCost,0)+' '+cur:'');
+}
+
+function clearOut(){['rTot','rSheet','rBase','rWeight','rRolls','rSurf','rVol'].forEach(function(i){$(i).textContent='—'});
+  ['more','wqblock','feedblock','careblock','shop','recs','svg','svg2','plan','fishbody'].forEach(function(i){$(i).innerHTML=''});$('fishres').hidden=true}
+function calc(){calc0();if($('msg').textContent)clearOut()}
+function resetAll(){if(!confirm('Сбросить все данные: размеры, цены, тесты воды, выбор рыбы и сохранённые варианты?'))return;
+  init();try{localStorage.removeItem('pondcalc');localStorage.removeItem('pondvariants')}catch(e){}
+  try{history.replaceState(null,'',location.href.split(/[?#]/)[0])}catch(e){}
+  refreshVariants();$('vname').value='';calc()}
+// --- Варианты ---
+function getVariants(){try{return JSON.parse(localStorage.getItem('pondvariants')||'[]')}catch(e){return[]}}
+function setVariants(v){try{localStorage.setItem('pondvariants',JSON.stringify(v))}catch(e){}}
+function refreshVariants(){
+  var v=getVariants(),sel=$('vlist');
+  if(!v.length){sel.innerHTML='<option value="">— нет —</option>';return}
+  sel.innerHTML=v.map(function(x,i){return '<option value="'+i+'">'+String(x.name).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})+'</option>'}).join('');
+}
+function captureState(){
+  var vals={};ids.forEach(function(i){if($(i))vals[i]=$(i).value});
+  return{st:JSON.parse(JSON.stringify(st)),vals:vals};
+}
+function restoreState(data){
+  if(data.st)Object.assign(st,data.st);
+  if(data.vals)Object.keys(data.vals).forEach(function(k){if($(k))$(k).value=data.vals[k]});
+  calc();
+}
+
+// --- URL share ---
+function buildShareURL(){
+  var p=new URLSearchParams();
+  Object.keys(st).forEach(function(k){p.set('s_'+k,st[k])});
+  ids.forEach(function(i){if($(i))p.set(i,$(i).value)});
+  return location.href.split(/[?#]/)[0]+'?'+p.toString();
+}
+function loadFromURL(){
+  if(!location.search)return false;
+  var p=new URLSearchParams(location.search),found=false;
+  ids.forEach(function(i){if(p.has(i)&&$(i)){$(i).value=p.get(i);found=true}});
+  Object.keys(st).forEach(function(k){if(p.has('s_'+k)){st[k]=p.get('s_'+k);found=true}});
+  return found;
+}
+
+(function(){var pick=$('fishpick'),kg=$('fishkg');$('fishmat').innerHTML=matrixHtml();
+  SP.forEach(function(s){var b=document.createElement('button');b.type='button';b.className='chip';b.id='fc_'+s.id;b.textContent=s.sh;
+    b.onclick=function(){st['f_'+s.id]=st['f_'+s.id]==='1'?'0':'1';calc()};pick.appendChild(b);
+    var d=document.createElement('div');d.className='f';d.id='kw_'+s.id;d.hidden=true;
+    d.innerHTML='<label for="K_'+s.id+'">'+s.n+': масса рыбы</label><div class="in"><input id="K_'+s.id+'" inputmode="decimal" placeholder="0"><span>кг всего</span></div>';kg.appendChild(d)})})();
+// --- Events ---
+ids.forEach(function(i){if($(i)){$(i).addEventListener('input',calc);$(i).addEventListener('change',calc)}});
+document.querySelectorAll('.seg button[data-k]').forEach(function(b){b.onclick=function(){
+  st[b.dataset.k]=b.dataset.v;
+  if(b.dataset.k==='dm'&&b.dataset.v==='diff'&&!$('D2').value)$('D2').value=$('D').value;
+  calc();
+}});
+document.querySelectorAll('[data-p]').forEach(function(b){b.onclick=function(){
+  init();apply(PRE[b.dataset.p]);
+  if(PRE[b.dataset.p].bp==='1')$('sec-bp').open=true;
+  if(Object.keys(PRE[b.dataset.p]).some(function(k){return k.indexOf('f_')===0}))$('sec-fish').open=true;
+  if(PRE[b.dataset.p].stream==='1')$('sec-str').open=true;
+  calc();
+}});
+$('reset').onclick=resetAll;$('resetall').onclick=resetAll;
+$('print').onclick=function(){window.print()};
+$('copy').onclick=function(){var b=$('copy');try{navigator.clipboard.writeText(last).then(function(){b.textContent='Скопировано';setTimeout(function(){b.textContent='Скопировать результат'},1500)})}catch(e){}};
+$('share').onclick=function(){
+  var url=buildShareURL();
+  try{history.replaceState(null,'',url)}catch(e){}
+  var b=$('share');
+  try{navigator.clipboard.writeText(url).then(function(){b.textContent='Ссылка скопирована';setTimeout(function(){b.textContent='Скопировать ссылку'},1500)})}
+  catch(e){b.textContent='Скопируйте из адресной строки'}
+};
+
+// Варианты
+$('vsave').onclick=function(){
+  var name=($('vname').value||'').trim()||('Вариант '+(getVariants().length+1));
+  var v=getVariants();v.push({name:name,data:captureState()});setVariants(v);refreshVariants();
+  $('vlist').value=String(v.length-1);
+  $('vname').value='';
+};
+$('vdel').onclick=function(){
+  var idx=$('vlist').value;if(idx==='')return;
+  var v=getVariants();v.splice(+idx,1);setVariants(v);refreshVariants();
+};
+$('vlist').onchange=function(){
+  var idx=this.value;if(idx==='')return;
+  var v=getVariants();if(v[+idx])restoreState(v[+idx].data);
+};
+
+// Тема
+function theme(){var r=document.documentElement,t;try{t=localStorage.getItem('pondtheme')}catch(e){}if(t)r.setAttribute('data-theme',t);
+  $('theme').onclick=function(){var cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),n=cur==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('pondtheme',n)}catch(e){}}}
+theme();
+
+// Init
+load();
+loadFromURL();
+refreshVariants();
+calc();
+})();
+</script>
+</body>
+</html>
